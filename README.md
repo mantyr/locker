@@ -15,7 +15,7 @@ This is the stable version.
         - [x] TryLock
         - [x] Unlock
     - Important:
-        - [ ] thread safe - You can take several locks from one mutex within a single running application.
+        - [x] thread safe - You cannot take several locks from one mutex within a single running application.
 
 ### Supports platforms
 

@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"golang.org/x/sys/unix"
 )
 
-type fileMutex int
+type fileMutex struct {
+	mutex      sync.Mutex
+	descriptor int
+}
 
 const (
 	fileMutexFileExt              = ".lock"
@@ -32,17 +36,29 @@ func NewFileMutex(address string) (Mutex, error) {
 		return nil, err
 	}
 	// defer file.Close() // if you close the file descriptor, then the mutex will not work
-	m := fileMutex(int(file.Fd()))
+	m := fileMutex{
+		descriptor: int(file.Fd()),
+	}
 	return &m, nil
 }
 
 func (m *fileMutex) Lock() error {
-	return unix.Flock(int(*m), unix.LOCK_EX)
+	m.mutex.Lock()
+	err := unix.Flock(m.descriptor, unix.LOCK_EX)
+	if err != nil {
+		m.mutex.Unlock()
+	}
+	return err
 }
 
 func (m *fileMutex) TryLock() (bool, error) {
-	err := unix.Flock(int(*m), unix.LOCK_EX|unix.LOCK_NB)
+	ok := m.mutex.TryLock()
+	if !ok {
+		return false, nil
+	}
+	err := unix.Flock(m.descriptor, unix.LOCK_EX|unix.LOCK_NB)
 	if err != nil {
+		m.mutex.Unlock()
 		if err == unix.EWOULDBLOCK {
 			return false, nil
 		}
@@ -52,5 +68,6 @@ func (m *fileMutex) TryLock() (bool, error) {
 }
 
 func (m *fileMutex) Unlock() error {
-	return unix.Flock(int(*m), unix.LOCK_UN)
+	m.mutex.Unlock()
+	return unix.Flock(m.descriptor, unix.LOCK_UN)
 }

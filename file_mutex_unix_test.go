@@ -31,7 +31,13 @@ func TestFileMutexUnix(t *testing.T) {
 			})
 			Convey("Checking TryLock", func() {
 				So(mutex.Lock(), ShouldBeNil)
+
 				lock, err := mutex.TryLock()
+				So(err, ShouldBeNil)
+				So(lock, ShouldBeFalse)
+
+				So(mutex.Unlock(), ShouldBeNil)
+				lock, err = mutex.TryLock()
 				So(err, ShouldBeNil)
 				So(lock, ShouldBeTrue)
 
@@ -76,9 +82,20 @@ func TestFileMutexUnix(t *testing.T) {
 				So(err, ShouldBeNil)
 				So(lock2, ShouldBeTrue)
 			})
-			Convey("Checking Unlock - We check that it is impossible to unlock someone else's lock", func() {
+			Convey("Checking Lock and Unlock", func() {
 				So(mutex.Lock(), ShouldBeNil)
+				So(mutex.Unlock(), ShouldBeNil)
+			})
+			Convey("Checking Unlock", func() {
+				So(mutex.Lock(), ShouldBeNil)
+				So(mutex.Unlock(), ShouldBeNil)
 
+				lock, err := mutex.TryLock()
+				So(err, ShouldBeNil)
+				So(lock, ShouldBeTrue)
+				So(mutex.Unlock(), ShouldBeNil)
+			})
+			Convey("Checking Unlock - We check that it is impossible to unlock someone else's lock", func() {
 				lock, err := mutex.TryLock()
 				So(err, ShouldBeNil)
 				So(lock, ShouldBeTrue)
@@ -87,10 +104,14 @@ func TestFileMutexUnix(t *testing.T) {
 				So(err, ShouldBeNil)
 				So(mutex2, ShouldNotBeNil)
 
-				So(mutex2.Unlock(), ShouldBeNil)
 				lock2, err := mutex2.TryLock()
 				So(err, ShouldBeNil)
 				So(lock2, ShouldBeFalse)
+
+				So(mutex.Unlock(), ShouldBeNil)
+				lock2, err = mutex2.TryLock()
+				So(err, ShouldBeNil)
+				So(lock2, ShouldBeTrue)
 			})
 		})
 	})
