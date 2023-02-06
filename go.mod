@@ -1,4 +1,4 @@
-module github.com/mantyr/locker
+module github.com/mantyr/locker/v2
 
 go 1.19
 
