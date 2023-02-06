@@ -1,7 +1,7 @@
 # Locker
 
 [![Build Status](https://travis-ci.org/mantyr/locker.svg?branch=master)](https://travis-ci.org/mantyr/locker)
-[![GoDoc](https://godoc.org/github.com/mantyr/locker?status.png)](http://godoc.org/github.com/mantyr/locker)
+[![GoDoc](https://godoc.org/github.com/mantyr/locker/v2?status.png)](http://godoc.org/github.com/mantyr/locker/v2)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mantyr/locker?v=1)][goreport]
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE.md)
 
